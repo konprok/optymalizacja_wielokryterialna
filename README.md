@@ -1,0 +1,1 @@
+# optymalizacja_wielokryterialna
