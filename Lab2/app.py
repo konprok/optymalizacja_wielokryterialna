@@ -1,9 +1,12 @@
 import tkinter as tk
 from tkinter import ttk, simpledialog, messagebox
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm, expon
 from algorithms import naive_no_filter, naive_with_filter, sort_and_filter
+from tkinter import filedialog  # Dodane do wyboru ścieżki pliku
+
 
 class OptimizationApp:
     def __init__(self, root):
@@ -82,6 +85,11 @@ class OptimizationApp:
         self.algorithm_menu.grid(row=1, column=1, padx=5, pady=5)
         self.benchmark_button = tk.Button(self.sort_frame, text="Benchmark", command=self.run_benchmark)
         self.benchmark_button.grid(row=2, column=0, columnspan=3, padx=5, pady=5)
+        
+
+        # Przycisk zapisu do XLSX
+        self.save_button = tk.Button(root, text="Zapisz do XLSX", command=self.save_to_excel)
+        self.save_button.grid(row=2, column=1, padx=10, pady=10, sticky="nsew")
 
     def plot_results(self):
         if len(self.criteria) < 2:
@@ -196,20 +204,23 @@ class OptimizationApp:
             self.criteria_listbox.delete(index)
 
     def generate_samples(self):
-        dist = self.distribution_var.get()
-        mean = float(self.mean_entry.get())
-        std_dev = float(self.std_dev_entry.get())
-        num_objects = int(self.num_objects_entry.get())
+        try:
+            dist = self.distribution_var.get()
+            mean = float(self.mean_entry.get())
+            std_dev = float(self.std_dev_entry.get())
+            num_objects = int(self.num_objects_entry.get())
 
-        if dist == "Normalny":
-            self.samples = norm.rvs(loc=mean, scale=std_dev, size=(num_objects, len(self.criteria)))
-        elif dist == "Wykładniczy":
-            self.samples = expon.rvs(scale=mean, size=(num_objects, len(self.criteria)))
+            if dist == "Normalny":
+                self.samples = norm.rvs(loc=mean, scale=std_dev, size=(num_objects, 3))
+            elif dist == "Wykładniczy":
+                self.samples = expon.rvs(scale=mean, size=(num_objects, 3))
 
-        for row in self.data_table.get_children():
-            self.data_table.delete(row)
-        for sample in self.samples:
-            self.data_table.insert("", "end", values=list(map(lambda x: round(x, 2), sample)))
+            self.data_table.delete(*self.data_table.get_children())
+            for i, row in enumerate(self.samples):
+                values = [i + 1] + [round(val, 2) for val in row]
+                self.data_table.insert("", "end", values=values)
+        except Exception as e:
+            messagebox.showerror("Błąd", f"Wystąpił błąd podczas generowania danych: {e}")
 
     def sort_data(self):
         criterion_index = self.sort_criteria_var.get() - 1
@@ -231,7 +242,23 @@ class OptimizationApp:
             result, exec_time, comparisons = sort_and_filter(self.samples)
 
         messagebox.showinfo("Benchmark", f"Wyniki dla algorytmu {alg}:\nCzas: {exec_time}\nPorównania: {comparisons}")
+    
+    def save_to_excel(self):
+        if self.samples is None or self.samples.size == 0:
+            messagebox.showerror("Błąd", "Brak danych do zapisania!")
+            return
 
+        try:
+            data = pd.DataFrame(self.samples, columns=["x", "y", "z"])
+            data.insert(0, "Nr klasy", range(1, len(data) + 1))
+
+            file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")])
+            if file_path:
+                data.to_excel(file_path, index=False)
+                messagebox.showinfo("Sukces", f"Dane zapisane do pliku: {file_path}")
+        except Exception as e:
+            messagebox.showerror("Błąd", f"Nie udało się zapisać pliku:\n{e}")
+                
 if __name__ == "__main__":
     root = tk.Tk()
     app = OptimizationApp(root)
