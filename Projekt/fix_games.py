@@ -1,5 +1,4 @@
 import json
-from tqdm import tqdm
 
 def load_games(filepath):
     with open(filepath, "r", encoding="utf-8") as f:
@@ -12,25 +11,19 @@ def save_games(games_data, filepath):
 def fix_games(input_path, output_path):
     games_data = load_games(input_path)
     
-    # Lista fraz niepożądanych w tytule
     forbidden_phrases = ["hentai", "porn", "sex", "harem"]
     
     filtered_games = {}
-    total_games = len(games_data)
 
-    # Pętla po grach z paskiem postępu
-    for game_id, info in tqdm(games_data.items(), desc="Przetwarzanie gier", total=total_games):
-        # 1. Cena gry - usuwamy jeśli 0
+    for game_id, info in games_data.items():
         price = info.get("price", 0.0)
         if price == 0:
             continue
 
-        # 2. Tytuł - usuwamy jeśli zawiera zakazaną frazę
         name_lower = info.get("name", "").lower()
         if any(phrase in name_lower for phrase in forbidden_phrases):
             continue
 
-        # Jeśli przeszła wszystkie filtry, dodaj do filtered_games
         filtered_games[game_id] = info
 
     save_games(filtered_games, output_path)
