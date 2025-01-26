@@ -2,6 +2,8 @@ import json
 import tkinter as tk
 from tkinter import ttk
 import math
+import os
+import zipfile
 
 # ---------------------------------------
 # 1. Funkcje wczytujące zasoby i gry
@@ -923,13 +925,36 @@ class GameRecommenderApp(tk.Tk):
             )
             self.result_text.insert(tk.END, line)
 
+def extract_zip(zip_path, extract_to):
+    """
+    Wypakowuje plik ZIP do wskazanego folderu.
+    Wyświetla komunikaty o rozpoczęciu i zakończeniu procesu.
+    """
+    print(f"Rozpoczynam wypakowywanie pliku {zip_path}...")
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_to)
+    print(f"Wypakowywanie zakończone. Pliki zostały wypakowane do folderu {extract_to}.")
 
 def main():
-    resources_data = load_resources("data/resources.json")
-    games_data     = load_games("data/games_fixed.json")
+    # Ścieżki do plików
+    zip_path = "data/games_fixed.zip"
+    json_path = "data/games_fixed.json"
+    
+    # Sprawdzenie, czy plik JSON istnieje, jeśli nie, wypakuj ZIP
+    if not os.path.exists(json_path):
+        if os.path.exists(zip_path):
+            extract_zip(zip_path, "data")
+        else:
+            print(f"Plik {zip_path} nie istnieje. Sprawdź, czy znajduje się w folderze 'data'.")
+            return
 
+    # Wczytywanie zasobów i gier
+    resources_data = load_resources("data/resources.json")
+    games_data     = load_games(json_path)
+
+    # Uruchomienie aplikacji GUI
     app = GameRecommenderApp(resources_data, games_data)
     app.mainloop()
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
