@@ -574,14 +574,14 @@ class GameRecommenderApp(tk.Tk):
     def __init__(self, resources_data, games_data):
         super().__init__()
         self.title("Game Recommender")
-        self.geometry("1200x800")
+        self.geometry("1200x900")
 
         self.all_subtitle_langs = resources_data["languages"]
-        self.all_audio_langs    = resources_data["audio_languages"]
-        self.all_tags           = resources_data["tags"]
-        self.games_data         = games_data
+        self.all_audio_langs = resources_data["audio_languages"]
+        self.all_tags = resources_data["tags"]
+        self.games_data = games_data
 
-        self.selected_tags      = []
+        self.selected_tags = []
 
         self.build_gui()
 
