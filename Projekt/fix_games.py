@@ -30,18 +30,12 @@ def fix_games(input_path, output_path):
         if any(phrase in name_lower for phrase in forbidden_phrases):
             continue
 
-        # 3. Sprawdzenie czasu gry 2-weeks
-        avg_2w = info.get("average_playtime_2weeks", 0)
-        med_2w = info.get("median_playtime_2weeks", 0)
-        # Odrzucamy grę, jeśli oba równe 0
-        if avg_2w == 0 and med_2w == 0:
-            continue
-
         # Jeśli przeszła wszystkie filtry, dodaj do filtered_games
         filtered_games[game_id] = info
 
     save_games(filtered_games, output_path)
     print(f"Przefiltrowano gry. Zapisano {len(filtered_games)} rekordów do {output_path}")
+    print(f"Liczba gier zapisanych do pliku: {len(filtered_games)}")
 
 if __name__ == "__main__":
     fix_games("data/games.json", "data/games_fixed.json")
