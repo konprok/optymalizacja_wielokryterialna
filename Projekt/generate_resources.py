@@ -11,6 +11,7 @@ def gather_unique_data(games_data):
     """
     unique_genres = set()
     unique_languages = set()
+    unique_audio_languages = set()
     unique_tags = set()
 
     for game_id, info in games_data.items():
@@ -21,30 +22,34 @@ def gather_unique_data(games_data):
         for t in info.get("tags", []):
             unique_tags.add(t)
             
+        for audio_lang in info.get("full_audio_languages", []):
+            unique_audio_languages.add(audio_lang)
         # Języki
         # Jeśli w "supported_languages" mamy listę np. ["English", "Polish"],
         # wystarczy dodać je do setu
         for lang in info.get("supported_languages", []):
             unique_languages.add(lang)
 
-    return unique_genres, unique_languages, unique_tags
+    return unique_genres, unique_languages, unique_audio_languages, unique_tags
 
 def main():
     # 1. Wczytujemy duży plik z grami
     games_data = load_games("data/games_fixed.json")  # <-- zmień ścieżkę, jeśli trzeba
 
     # 2. Zbieramy unikalne gatunki i języki
-    genres_set, languages_set, tags_set = gather_unique_data(games_data)
+    genres_set, languages_set, audio_languages_set, tags_set = gather_unique_data(games_data)
 
     # 3. Zamieniamy na posortowane listy
     genres_list = sorted(genres_set)
     languages_list = sorted(languages_set)
+    audio_languages = sorted(audio_languages_set)
     tags_list = sorted(tags_set)
 
     # 4. Zapisujemy do osobnego pliku JSON
     resources = {
         "genres": genres_list,
         "languages": languages_list,
+        "audio_languages":  audio_languages,
         "tags": tags_list
     }
 
