@@ -64,10 +64,8 @@ def generate_pareto_set_G(lambda_vectors):
 
 # Wizualizacja zbioru Pareto i aproksymacja spline’ami w 2D
 def plot_pareto_approximation_2d(pareto_points, title, xlabel, ylabel):
-    # Sortowanie punktów po osi X, aby zapewnić poprawne dopasowanie spline'a
     pareto_points = pareto_points[np.argsort(pareto_points[:, 0])]
 
-    # Interpolacja spline’ami lub liniowa, jeśli wystąpi błąd
     try:
         tck, _ = splprep([pareto_points[:, 0], pareto_points[:, 1]], s=0)
         new_points = splev(np.linspace(0, 1, 100), tck)
@@ -75,7 +73,6 @@ def plot_pareto_approximation_2d(pareto_points, title, xlabel, ylabel):
     except ValueError:
         plt.plot(pareto_points[:, 0], pareto_points[:, 1], 'o-', label="Interpolacja liniowa zbioru Pareto")
 
-    # Wykres punktów Pareto
     plt.plot(pareto_points[:, 0], pareto_points[:, 1], 'o', label="Dyskretne punkty Pareto")
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
